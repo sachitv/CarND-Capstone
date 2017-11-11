@@ -10,11 +10,12 @@ import rospy
 from cv_bridge import CvBridge
 import cv2
 import scipy.misc
+import os.path
 
 class TLClassifier(object):
     def __init__(self):
-        PATH_TO_MODEL = 'frozen_models/frozen_inference_graph.pb'
-        PATH_TO_LABELS = 'label_map_3.pbtxt'
+        PATH_TO_MODEL = os.path.abspath('light_classification/frozen_models/frozen_inference_graph.pb')
+        PATH_TO_LABELS = os.path.abspath('light_classification/label_map.pbtxt')
         NUM_CLASSES = 3
 
         label_map = label_map_util.load_labelmap(PATH_TO_LABELS)
@@ -52,7 +53,6 @@ class TLClassifier(object):
         rospy.loginfo('trying to classify image')
         with self.detection_graph.as_default():
             # Expand dimension since the model expects image to have shape [1, None, None, 3].
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             img_expanded = np.expand_dims(image, axis=0)  
             boxes, scores, classes, num = self.sess.run( [self.d_boxes, self.d_scores, self.d_classes, self.num_d], feed_dict={self.image_tensor: img_expanded})
             outimage = image
